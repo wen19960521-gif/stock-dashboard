@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>股票实验看板 · 2026-08-12</title>
+<style>
+:root{
+  --bg:#0B1526; --panel:#101F33; --panel2:#16273F; --line:rgba(216,229,245,.12);
+  --text:#E6EDF7; --muted:#8FA3BF; --up:#F25C5C; --down:#2FA36B; --accent:#D9B45B; --info:#5AA9E6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.5;padding:28px 20px 40px}
+.wrap{max-width:1180px;margin:0 auto}
+.nums{font-family:"DIN Alternate","Roboto Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+header{margin-bottom:26px}
+.eyebrow{color:var(--accent);font-size:12px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:8px}
+h1{font-family:"Noto Serif SC","Songti SC",serif;font-size:30px;font-weight:700;letter-spacing:.02em}
+.meta{color:var(--muted);font-size:13px;margin-top:8px}
+.hero{display:flex;align-items:flex-end;gap:26px;flex-wrap:wrap;padding:22px 0 20px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:22px}
+.hero-big{font-family:"Noto Serif SC","Songti SC",serif;font-size:52px;line-height:1;color:var(--text)}
+.hero-big .sign{font-size:18px;color:var(--muted);display:block;margin-top:6px;font-family:inherit}
+.hero-note{color:var(--muted);font-size:13px;max-width:520px}
+.hero-note b{color:var(--accent);font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:26px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.kpi .k{font-size:12px;color:var(--muted)}
+.kpi .v{font-size:26px;font-weight:700;margin-top:4px}
+.grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:16px;margin-bottom:26px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+.panel h2{font-family:"Noto Serif SC","Songti SC",serif;font-size:17px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.panel h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.tabs{display:flex;gap:8px;margin-bottom:12px}
+.tab{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:4px 12px;border-radius:999px;cursor:pointer;background:none;color:var(--text)}
+.tab.on{background:var(--accent);color:#141414;border-color:var(--accent);font-weight:600}
+.tab-group{display:none}
+.tab-group.on{display:block}
+.stock-row{padding:10px 4px;border-bottom:1px solid var(--line);transition:background .15s}
+.stock-row:hover{background:var(--panel2)}
+.stock-main{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.stock-name{font-weight:600}
+.stock-code{color:var(--muted);font-size:12px}
+.price{color:var(--text);font-size:14px}
+.chg{font-weight:700;min-width:64px}
+.up{color:var(--up)} .down{color:var(--down)}
+.dist{font-size:12px;color:var(--muted)}
+.dist.stop{color:var(--up);font-weight:700}
+.tag{font-size:11px;color:var(--accent);border:1px solid rgba(217,180,91,.4);padding:1px 8px;border-radius:999px}
+.energy{height:4px;border-radius:2px;opacity:.85}
+.energy.up{background:var(--up)} .energy.down{background:var(--down)}
+.stock-foot{margin-top:6px;color:var(--muted);font-size:12px}
+.charts{display:flex;flex-direction:column;gap:16px}
+.chart-svg{width:100%;height:auto}
+.bar{transform-origin:bottom;animation:grow .9s cubic-bezier(.2,.8,.2,1) both}
+.bar-name{font-size:11px;fill:var(--muted)}
+.bar-v{font-size:11px;fill:var(--text)}
+.axis{stroke:var(--line)}
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.donut-total{fill:var(--text);font-size:26px;font-weight:700}
+.donut-label{fill:var(--muted);font-size:11px}
+.donut-legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.legend-item{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.legend-item i{width:10px;height:10px;border-radius:2px;display:inline-block}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:600;font-size:12px;position:sticky;top:0;background:var(--panel)}
+td.num{text-align:right;font-family:"DIN Alternate","Roboto Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+td.t-name{white-space:normal}
+.verdict{font-size:12px;padding:2px 10px;border-radius:999px}
+.verdict.up{color:#2FA36B;background:rgba(47,163,107,.15)}
+.verdict.down{color:#F25C5C;background:rgba(242,92,92,.14)}
+.verdict.stop{color:#FFB4B4;background:rgba(229,72,77,.2)}
+.verdict.watch{color:#5AA9E6;background:rgba(90,169,230,.14)}
+.scroll{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid var(--line);padding-top:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@media (prefers-reduced-motion: reduce){.bar{animation:none}}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.hero-big{font-size:40px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">A 股每日实验 · 收盘后更新</div>
+    <h1>股票实验看板</h1>
+    <div class="meta">数据日期 <b class="nums">2026-08-12</b> ｜ 最近更新 <b class="nums">2026-08-12 15:40:35</b> ｜ 数据来源：腾讯行情 / 东方财富 / baostock</div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-big nums">+1.56%<span class="sign">今日推荐 10 只 · 平均涨跌</span></div>
+    <div class="hero-note">今日两类共推荐 <b>10 只</b>（一类底部反转 5 只 + 二类连涨换手 5 只），上涨 10 只、下跌 0 只。每只均在持续跟踪，推荐以来平均 +0.82%，无一破止损。</div>
+  </section>
+
+  <section class="kpis">
+    <div class="kpi"><div class="k">监控股票数</div><div class="v nums">19</div></div>
+    <div class="kpi"><div class="k">今日推荐</div><div class="v nums">10</div></div>
+    <div class="kpi"><div class="k">今日上涨 / 下跌</div><div class="v nums"><span class="up">10</span> / <span class="down">0</span></div></div>
+    <div class="kpi"><div class="k">平均距止损</div><div class="v nums">+12.3%</div></div>
+    <div class="kpi"><div class="k">累计推荐</div><div class="v nums">24</div></div>
+    <div class="kpi"><div class="k">走强</div><div class="v nums" style="color:var(--down)">5</div></div>
+    <div class="kpi"><div class="k">走弱</div><div class="v nums" style="color:var(--up)">1</div></div>
+    <div class="kpi"><div class="k">破止损</div><div class="v nums" style="color:var(--up)">0</div></div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel">
+      <h2><span class="dot"></span>今日推荐与监测</h2>
+      <div class="tabs">
+        <button class="tab on" data-tab="t1">一类 · 底部反转</button>
+        <button class="tab" data-tab="t2">二类 · 连涨换手</button>
+      </div>
+      <div class="tab-group on" id="t1"><div class="stock-row">
+        <div class="stock-main">
+          <span class="stock-name">郑中设计</span><span class="stock-code">002811</span>
+          <span class="price">¥10.41</span>
+          <span class="chg up">+0.67%</span>
+          <span class="dist ">距止损 +0.1%</span>
+          <span class="tag">其他</span>
+          <span class="energy up" style="width:9.38px"></span>
+        </div>
+        <div class="stock-foot"><span class="stock-sub">十字星 46241 · 确认 46244 · 入场 10.55</span></div>
+      </div>
+<div class="stock-row">
+        <div class="stock-main">
+          <span class="stock-name">金冠电气</span><span class="stock-code">688517</span>
+          <span class="price">¥15.97</span>
+          <span class="chg up">+0.44%</span>
+          <span class="dist ">距止损 +0.1%</span>
+          <span class="tag">储能/新能源</span>
+          <span class="energy up" style="width:6.16px"></span>
+        </div>
+        <div class="stock-foot"><span class="stock-sub">十字星 46240 · 确认 46241 · 入场 15.58</span></div>
+      </div>
+<div class="stock-row">
+        <div class="stock-main">
+          <span class="stock-name">聚胶股份</span><span class="stock-code">301283</span>
+          <span class="price">¥26.15</span>
+          <span class="chg up">+0.38%</span>
+          <span class="dist ">距止损 +0.1%</span>
+          <span class="tag">其他</span>
+          <span class="energy up" style="width:5.32px"></span>
+        </div>
+        <div class="stock-foot"><span class="stock-sub">十字星 46240 · 确认 46241 · 入场 25.82</span></div>
+      </div>
+<div class="stock-row">
+        <div class="stock-main">
+          <span class="stock-name">微电生理</span><span class="stock-code">688351</span>
+          <span class="price">¥20.60</span>
+          <span class="chg up">+1.17%</span>
+          <span class="dist ">距止损 +0.1%</span>
+          <span class="tag">半导体/集成电路</span>
+          <span class="energy up" style="width:16.38px"></span>
+        </div>
+        <div class="stock-foot"><span class="stock-sub">十字星 46239 · 确认 46241 · 入场 20.71</span></div>
+      </div>
+<div class="stock-row">
+        <div class="stock-main">
+          <span class="stock-name">翔丰华</span><span class="stock-code">300890</span>
+          <span class="price">¥26.98</span>
+          <span class="chg up">+0.90%</span>
+          <span class="dist ">距止损 +0.1%</span>
+          <span class="tag">其他</span>
+          <span class="energy up" style="width:12.6px"></span>
+        </div>
+        <div class="stock-foot"><span class="stock-sub">十字星 46240 · 确认 46241 · 入场 26.45</span></div>
+      </div></div>
+      <div class="tab-group" id="t2"><div class="stock-row">
+        <div class="stock-main">
+          <span class="stock-name">爱乐达</span><span class="stock-code">300696</span>
+          <span class="price">¥22.95</span>
+          <span class="chg up">+3.68%</span>
+          <span class="dist ">距止损 +0.2%</span>
+          <span class="tag">其他</span>
+          <span class="energy up" style="width:51.52px"></span>
+        </div>
+        <div class="stock-foot"><span class="stock-sub">连涨 3 天 · 换手 3.29% · 3日 +8.41%</span></div>
+      </div>
+<div class="stock-row">
+        <div class="stock-main">
+          <span class="stock-name">上能电气</span><span class="stock-code">300827</span>
+          <span class="price">¥26.80</span>
+          <span class="chg up">+5.60%</span>
+          <span class="dist ">距止损 +0.1%</span>
+          <span class="tag">储能/新能源</span>
+          <span class="energy up" style="width:78.39999999999999px"></span>
+        </div>
+        <div class="stock-foot"><span class="stock-sub">连涨 3 天 · 换手 3.21% · 3日 +4.24%</span></div>
+      </div>
+<div class="stock-row">
+        <div class="stock-main">
+          <span class="stock-name">九洲药业</span><span class="stock-code">603456</span>
+          <span class="price">¥17.11</span>
+          <span class="chg up">+0.18%</span>
+          <span class="dist ">距止损 +0.1%</span>
+          <span class="tag">生物医药</span>
+          <span class="energy up" style="width:4px"></span>
+        </div>
+        <div class="stock-foot"><span class="stock-sub">连涨 3 天 · 换手 6.02% · 3日 +3.63%</span></div>
+      </div>
+<div class="stock-row">
+        <div class="stock-main">
+          <span class="stock-name">奥联电子</span><span class="stock-code">300585</span>
+          <span class="price">¥16.82</span>
+          <span class="chg up">+1.98%</span>
+          <span class="dist ">距止损 +0.1%</span>
+          <span class="tag">半导体/集成电路</span>
+          <span class="energy up" style="width:27.72px"></span>
+        </div>
+        <div class="stock-foot"><span class="stock-sub">连涨 3 天 · 换手 3.03% · 3日 +5.79%</span></div>
+      </div>
+<div class="stock-row">
+        <div class="stock-main">
+          <span class="stock-name">华建集团</span><span class="stock-code">600629</span>
+          <span class="price">¥16.92</span>
+          <span class="chg up">+0.55%</span>
+          <span class="dist ">距止损 +0.1%</span>
+          <span class="tag">其他</span>
+          <span class="energy up" style="width:7.700000000000001px"></span>
+        </div>
+        <div class="stock-foot"><span class="stock-sub">连涨 3 天 · 换手 3.51% · 3日 +4.00%</span></div>
+      </div></div>
+    </div>
+    <div class="charts">
+      <div class="panel"><h2><span class="dot"></span>今日涨跌幅</h2><svg class="chart-svg" viewBox="0 0 480 240" role="img" aria-label="今日涨跌幅柱状图">
+    <line x1="34" y1="206" x2="480" y2="206" class="axis"></line>
+    <rect class="bar" x="44.0" y="194.4" width="24.5" height="11.6" rx="2" fill="#F25C5C" data-v="0.67"></rect>
+      <text x="56.3" y="188.4" text-anchor="middle" class="bar-v">+0.7</text>
+      <text x="56.3" y="226" text-anchor="middle" class="bar-name">郑中设计</text>
+<rect class="bar" x="88.6" y="198.4" width="24.5" height="7.6" rx="2" fill="#F25C5C" data-v="0.44"></rect>
+      <text x="100.9" y="192.4" text-anchor="middle" class="bar-v">+0.4</text>
+      <text x="100.9" y="226" text-anchor="middle" class="bar-name">金冠电气</text>
+<rect class="bar" x="133.2" y="199.4" width="24.5" height="6.6" rx="2" fill="#F25C5C" data-v="0.38"></rect>
+      <text x="145.5" y="193.4" text-anchor="middle" class="bar-v">+0.4</text>
+      <text x="145.5" y="226" text-anchor="middle" class="bar-name">聚胶股份</text>
+<rect class="bar" x="177.8" y="185.7" width="24.5" height="20.3" rx="2" fill="#F25C5C" data-v="1.17"></rect>
+      <text x="190.1" y="179.7" text-anchor="middle" class="bar-v">+1.2</text>
+      <text x="190.1" y="226" text-anchor="middle" class="bar-name">微电生理</text>
+<rect class="bar" x="222.4" y="190.4" width="24.5" height="15.6" rx="2" fill="#F25C5C" data-v="0.90"></rect>
+      <text x="234.7" y="184.4" text-anchor="middle" class="bar-v">+0.9</text>
+      <text x="234.7" y="226" text-anchor="middle" class="bar-name">翔丰华</text>
+<rect class="bar" x="267.0" y="142.3" width="24.5" height="63.7" rx="2" fill="#F25C5C" data-v="3.68"></rect>
+      <text x="279.3" y="136.3" text-anchor="middle" class="bar-v">+3.7</text>
+      <text x="279.3" y="226" text-anchor="middle" class="bar-name">爱乐达</text>
+<rect class="bar" x="311.6" y="109.0" width="24.5" height="97.0" rx="2" fill="#F25C5C" data-v="5.60"></rect>
+      <text x="323.9" y="103.0" text-anchor="middle" class="bar-v">+5.6</text>
+      <text x="323.9" y="226" text-anchor="middle" class="bar-name">上能电气</text>
+<rect class="bar" x="356.2" y="202.9" width="24.5" height="3.1" rx="2" fill="#F25C5C" data-v="0.18"></rect>
+      <text x="368.5" y="196.9" text-anchor="middle" class="bar-v">+0.2</text>
+      <text x="368.5" y="226" text-anchor="middle" class="bar-name">九洲药业</text>
+<rect class="bar" x="400.8" y="171.7" width="24.5" height="34.3" rx="2" fill="#F25C5C" data-v="1.98"></rect>
+      <text x="413.1" y="165.7" text-anchor="middle" class="bar-v">+2.0</text>
+      <text x="413.1" y="226" text-anchor="middle" class="bar-name">奥联电子</text>
+<rect class="bar" x="445.4" y="196.5" width="24.5" height="9.5" rx="2" fill="#F25C5C" data-v="0.55"></rect>
+      <text x="457.7" y="190.5" text-anchor="middle" class="bar-v">+0.6</text>
+      <text x="457.7" y="226" text-anchor="middle" class="bar-name">华建集团</text>
+  </svg></div>
+      <div class="panel"><h2><span class="dot"></span>推荐状态分布</h2><div class="donut-wrap"><svg class="chart-svg" viewBox="0 0 180 180" role="img" aria-label="推荐状态分布环形图">
+    <circle cx="90" cy="90" r="70" fill="none" stroke="#22334D" stroke-width="2"></circle>
+    <path d="M 90 90 L 90.0 20.0 A 70 70 0 0 1 157.6 71.9 Z" fill="#2FA36B"><title>走强 5（21%）</title></path>
+<path d="M 90 90 L 157.6 71.9 A 70 70 0 0 1 160.0 90.0 Z" fill="#F25C5C"><title>走弱 1（4%）</title></path>
+<path d="M 90 90 L 160.0 90.0 A 70 70 0 1 1 90.0 20.0 Z" fill="#5AA9E6"><title>观察 18（75%）</title></path>
+    <text x="90" y="86" text-anchor="middle" class="donut-total">24</text>
+    <text x="90" y="104" text-anchor="middle" class="donut-label">累计推荐</text>
+  </svg><div class="donut-legend"><span class="legend-item"><i style="background:#2FA36B"></i>走强 5</span><span class="legend-item"><i style="background:#F25C5C"></i>走弱 1</span><span class="legend-item"><i style="background:#E5484D"></i>破止损 0</span><span class="legend-item"><i style="background:#5AA9E6"></i>观察 18</span></div></div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2><span class="dot"></span>验证评估 · 持续跟踪</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>推荐日</th><th>类别</th><th>名称</th><th class="num">推荐日收盘</th><th class="num">最新价</th><th class="num">推荐以来</th><th class="num">距止损</th><th>结论</th></tr></thead>
+        <tbody><tr>
+      <td>08-12</td><td>一类-底部反转</td><td class="t-name">郑中设计</td>
+      <td class="num">10.41</td><td class="num">10.47</td>
+      <td class="num up">+0.58%</td>
+      <td class="num">+7.3%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-12</td><td>一类-底部反转</td><td class="t-name">金冠电气</td>
+      <td class="num">15.97</td><td class="num">15.89</td>
+      <td class="num down">-0.50%</td>
+      <td class="num">+7.1%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-12</td><td>一类-底部反转</td><td class="t-name">聚胶股份</td>
+      <td class="num">26.15</td><td class="num">26.20</td>
+      <td class="num up">+0.19%</td>
+      <td class="num">+7.3%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-12</td><td>一类-底部反转</td><td class="t-name">微电生理</td>
+      <td class="num">20.60</td><td class="num">20.80</td>
+      <td class="num up">+0.97%</td>
+      <td class="num">+6.2%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-12</td><td>一类-底部反转</td><td class="t-name">翔丰华</td>
+      <td class="num">26.98</td><td class="num">26.94</td>
+      <td class="num down">-0.15%</td>
+      <td class="num">+8.2%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-12</td><td>二类-连续上涨</td><td class="t-name">九洲药业</td>
+      <td class="num">17.11</td><td class="num">16.83</td>
+      <td class="num down">-1.64%</td>
+      <td class="num">+6.3%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-12</td><td>二类-连续上涨</td><td class="t-name">秦川机床</td>
+      <td class="num">11.19</td><td class="num">11.20</td>
+      <td class="num up">+0.09%</td>
+      <td class="num">+16.1%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-12</td><td>二类-连续上涨</td><td class="t-name">东富龙</td>
+      <td class="num">14.05</td><td class="num">13.97</td>
+      <td class="num down">-0.57%</td>
+      <td class="num">+11.7%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-12</td><td>二类-连续上涨</td><td class="t-name">彩虹集团</td>
+      <td class="num">25.95</td><td class="num">27.97</td>
+      <td class="num up">+7.78%</td>
+      <td class="num">+29.2%</td>
+      <td><span class="verdict up">✓ 走强</span></td>
+    </tr>
+<tr>
+      <td>08-12</td><td>二类-连续上涨</td><td class="t-name">若羽臣</td>
+      <td class="num">29.79</td><td class="num">29.27</td>
+      <td class="num down">-1.75%</td>
+      <td class="num">+14.3%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-12</td><td>二类-连续上涨</td><td class="t-name">爱乐达</td>
+      <td class="num">22.95</td><td class="num">22.85</td>
+      <td class="num down">-0.44%</td>
+      <td class="num">+15.9%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-12</td><td>二类-连续上涨</td><td class="t-name">上能电气</td>
+      <td class="num">26.80</td><td class="num">27.54</td>
+      <td class="num up">+2.76%</td>
+      <td class="num">+12.2%</td>
+      <td><span class="verdict up">✓ 走强</span></td>
+    </tr>
+<tr>
+      <td>08-12</td><td>二类-连续上涨</td><td class="t-name">奥联电子</td>
+      <td class="num">16.82</td><td class="num">16.51</td>
+      <td class="num down">-1.84%</td>
+      <td class="num">+12.9%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-12</td><td>二类-连续上涨</td><td class="t-name">华建集团</td>
+      <td class="num">16.92</td><td class="num">16.42</td>
+      <td class="num down">-2.96%</td>
+      <td class="num">+8.7%</td>
+      <td><span class="verdict down">✗ 走弱</span></td>
+    </tr>
+<tr>
+      <td>08-11</td><td>一类-底部反转</td><td class="t-name">郑中设计</td>
+      <td class="num">10.40</td><td class="num">10.47</td>
+      <td class="num up">+0.67%</td>
+      <td class="num">+7.3%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-11</td><td>一类-底部反转</td><td class="t-name">微电生理</td>
+      <td class="num">20.56</td><td class="num">20.80</td>
+      <td class="num up">+1.17%</td>
+      <td class="num">+6.2%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-11</td><td>一类-底部反转</td><td class="t-name">元祖股份</td>
+      <td class="num">10.72</td><td class="num">10.72</td>
+      <td class="num up">+0.00%</td>
+      <td class="num">+5.5%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-11</td><td>一类-底部反转</td><td class="t-name">乐惠国际</td>
+      <td class="num">20.96</td><td class="num">23.06</td>
+      <td class="num up">+10.02%</td>
+      <td class="num">+19.5%</td>
+      <td><span class="verdict up">✓ 走强</span></td>
+    </tr>
+<tr>
+      <td>08-11</td><td>一类-底部反转</td><td class="t-name">翔丰华</td>
+      <td class="num">26.70</td><td class="num">26.94</td>
+      <td class="num up">+0.90%</td>
+      <td class="num">+8.2%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-11</td><td>二类-连续上涨</td><td class="t-name">蓝海华腾</td>
+      <td class="num">13.75</td><td class="num">14.15</td>
+      <td class="num up">+2.91%</td>
+      <td class="num">+14.2%</td>
+      <td><span class="verdict up">✓ 走强</span></td>
+    </tr>
+<tr>
+      <td>08-11</td><td>二类-连续上涨</td><td class="t-name">东富龙</td>
+      <td class="num">13.79</td><td class="num">13.97</td>
+      <td class="num up">+1.31%</td>
+      <td class="num">+20.0%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-11</td><td>二类-连续上涨</td><td class="t-name">南矿集团</td>
+      <td class="num">17.04</td><td class="num">16.76</td>
+      <td class="num down">-1.64%</td>
+      <td class="num">+18.6%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr>
+<tr>
+      <td>08-11</td><td>二类-连续上涨</td><td class="t-name">爱乐达</td>
+      <td class="num">22.04</td><td class="num">22.85</td>
+      <td class="num up">+3.68%</td>
+      <td class="num">+18.7%</td>
+      <td><span class="verdict up">✓ 走强</span></td>
+    </tr>
+<tr>
+      <td>08-11</td><td>二类-连续上涨</td><td class="t-name">劲旅环境</td>
+      <td class="num">21.35</td><td class="num">20.95</td>
+      <td class="num down">-1.87%</td>
+      <td class="num">+14.5%</td>
+      <td><span class="verdict watch">观察</span></td>
+    </tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer><span>量化实验系统 · 每交易日 15:40 收盘后自动更新</span><span>不构成投资建议，据此操作风险自负</span></footer>
+</div>
+<script>
+document.querySelectorAll(".tab").forEach((t)=>{
+  t.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+    document.querySelectorAll(".tab-group").forEach(x=>x.classList.remove("on"));
+    t.classList.add("on");
+    document.getElementById(t.dataset.tab).classList.add("on");
+  });
+});
+</script>
+</body>
+</html>
