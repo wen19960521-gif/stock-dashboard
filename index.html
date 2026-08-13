@@ -46,6 +46,10 @@ h1{font-family:"Noto Serif SC","Songti SC",serif;font-size:30px;font-weight:700;
 .dist{font-size:12px;color:var(--muted)}
 .dist.stop{color:var(--up);font-weight:700}
 .tag{font-size:11px;color:var(--accent);border:1px solid rgba(217,180,91,.4);padding:1px 8px;border-radius:999px}
+.fit{font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid}
+.fit.ok{color:#2FA36B;border-color:rgba(47,163,107,.5)}
+.fit.mid{color:#D9B45B;border-color:rgba(217,180,91,.5)}
+.fit.no{color:#8FA3BF;border-color:rgba(143,163,191,.4)}
 .energy{height:4px;border-radius:2px;opacity:.85}
 .energy.up{background:var(--up)} .energy.down{background:var(--down)}
 .stock-foot{margin-top:6px;color:var(--muted);font-size:12px}
@@ -66,6 +70,7 @@ th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white
 th{color:var(--muted);font-weight:600;font-size:12px;position:sticky;top:0;background:var(--panel)}
 td.num{text-align:right;font-family:"DIN Alternate","Roboto Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
 td.t-name{white-space:normal}
+td.tip{font-size:12px;color:#9FB3CC;white-space:normal;max-width:240px}
 .verdict{font-size:12px;padding:2px 10px;border-radius:999px}
 .verdict.up{color:#2FA36B;background:rgba(47,163,107,.15)}
 .verdict.down{color:#F25C5C;background:rgba(242,92,92,.14)}
@@ -118,6 +123,7 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
           <span class="chg up">+0.67%</span>
           <span class="dist ">距止损 +0.1%</span>
           <span class="tag">其他</span>
+          
           <span class="energy up" style="width:9.38px"></span>
         </div>
         <div class="stock-foot"><span class="stock-sub">十字星 46241 · 确认 46244 · 入场 10.55</span></div>
@@ -129,6 +135,7 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
           <span class="chg up">+0.44%</span>
           <span class="dist ">距止损 +0.1%</span>
           <span class="tag">储能/新能源</span>
+          
           <span class="energy up" style="width:6.16px"></span>
         </div>
         <div class="stock-foot"><span class="stock-sub">十字星 46240 · 确认 46241 · 入场 15.58</span></div>
@@ -140,6 +147,7 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
           <span class="chg up">+0.38%</span>
           <span class="dist ">距止损 +0.1%</span>
           <span class="tag">其他</span>
+          
           <span class="energy up" style="width:5.32px"></span>
         </div>
         <div class="stock-foot"><span class="stock-sub">十字星 46240 · 确认 46241 · 入场 25.82</span></div>
@@ -151,6 +159,7 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
           <span class="chg up">+1.17%</span>
           <span class="dist ">距止损 +0.1%</span>
           <span class="tag">半导体/集成电路</span>
+          
           <span class="energy up" style="width:16.38px"></span>
         </div>
         <div class="stock-foot"><span class="stock-sub">十字星 46239 · 确认 46241 · 入场 20.71</span></div>
@@ -162,6 +171,7 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
           <span class="chg up">+0.90%</span>
           <span class="dist ">距止损 +0.1%</span>
           <span class="tag">其他</span>
+          
           <span class="energy up" style="width:12.6px"></span>
         </div>
         <div class="stock-foot"><span class="stock-sub">十字星 46240 · 确认 46241 · 入场 26.45</span></div>
@@ -173,6 +183,7 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
           <span class="chg up">+7.96%</span>
           <span class="dist ">距止损 +0.2%</span>
           <span class="tag">其他</span>
+          
           <span class="energy up" style="width:100px"></span>
         </div>
         <div class="stock-foot"><span class="stock-sub">连涨 3 天 · 换手 4.28% · 3日 +7.46%</span></div>
@@ -184,6 +195,7 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
           <span class="chg up">+3.68%</span>
           <span class="dist ">距止损 +0.2%</span>
           <span class="tag">其他</span>
+          
           <span class="energy up" style="width:51.52px"></span>
         </div>
         <div class="stock-foot"><span class="stock-sub">连涨 3 天 · 换手 4.31% · 3日 +8.41%</span></div>
@@ -195,6 +207,7 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
           <span class="chg up">+10.00%</span>
           <span class="dist ">距止损 +0.2%</span>
           <span class="tag">其他</span>
+          
           <span class="energy up" style="width:100px"></span>
         </div>
         <div class="stock-foot"><span class="stock-sub">连涨 3 天 · 换手 4.16% · 3日 +5.82%</span></div>
@@ -206,6 +219,7 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
           <span class="chg up">+5.60%</span>
           <span class="dist ">距止损 +0.1%</span>
           <span class="tag">储能/新能源</span>
+          
           <span class="energy up" style="width:78.39999999999999px"></span>
         </div>
         <div class="stock-foot"><span class="stock-sub">连涨 3 天 · 换手 5.12% · 3日 +4.24%</span></div>
@@ -217,6 +231,7 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
           <span class="chg up">+3.26%</span>
           <span class="dist ">距止损 +0.2%</span>
           <span class="tag">其他</span>
+          
           <span class="energy up" style="width:45.64px"></span>
         </div>
         <div class="stock-foot"><span class="stock-sub">连涨 3 天 · 换手 3.15% · 3日 +8.95%</span></div>
@@ -279,13 +294,14 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
     </div>
     <div class="scroll">
       <table>
-        <thead><tr><th>名称</th><th>类别</th><th class="num">买入价</th><th class="num">数量</th><th class="num">止损价</th><th class="num">最新价</th><th class="num">收益率</th><th>状态</th></tr></thead>
+        <thead><tr><th>名称</th><th>类别</th><th class="num">买入价</th><th class="num">数量</th><th class="num">止损价</th><th class="num">最新价</th><th class="num">收益率</th><th>状态</th><th>操作提示</th></tr></thead>
         <tbody><tr>
       <td class="t-name">微电生理</td><td>一类-底部反转</td>
       <td class="num">20.60</td><td class="num">100</td>
       <td class="num">19.59</td><td class="num">20.80</td>
       <td class="num up">+0.97%</td>
       <td><span class="verdict watch">持有</span></td>
+      <td class="tip"></td>
     </tr>
 <tr>
       <td class="t-name">翔丰华</td><td>一类-底部反转</td>
@@ -293,6 +309,7 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
       <td class="num">24.89</td><td class="num">26.94</td>
       <td class="num down">-0.15%</td>
       <td><span class="verdict watch">持有</span></td>
+      <td class="tip"></td>
     </tr>
 <tr>
       <td class="t-name">金冠电气</td><td>一类-底部反转</td>
@@ -300,6 +317,7 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
       <td class="num">14.84</td><td class="num">15.89</td>
       <td class="num down">-0.50%</td>
       <td><span class="verdict watch">持有</span></td>
+      <td class="tip"></td>
     </tr>
 <tr>
       <td class="t-name">雅运股份</td><td>二类-连续上涨</td>
@@ -307,6 +325,7 @@ footer{margin-top:26px;color:var(--muted);font-size:12px;border-top:1px solid va
       <td class="num">20.76</td><td class="num">25.04</td>
       <td class="num down">-1.14%</td>
       <td><span class="verdict watch">持有</span></td>
+      <td class="tip"></td>
     </tr></tbody>
       </table>
     </div>
